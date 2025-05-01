@@ -1,5 +1,6 @@
 package com.ai.springdemo.app;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class EmailGeneratorService {
         String response = webClient.post()
                 .uri(geminiApiUrl+geminiApiKey)
                 .header("Content-Type", "application/json")
+                .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
@@ -46,13 +48,21 @@ public class EmailGeneratorService {
         return extractResponseContent(response);
     }
 
-    
+    private String extractResponseContent(String response) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(response);
+            return rootNode.path("candidates").get(0).path("content").path("parts").get(0).path("text").asText();
+        } catch (Exception e){
+            return "Ошибка с созданием ответа: " + e.getMessage();
+        }
+    }
 
     private String buildPrompt(EmailRequest emailRequest) {
         StringBuilder prompt = new StringBuilder();
         prompt.append("Generate a professional email reply for the following email content in the language in which it is written.Please, dont generate a subject line");
         if(emailRequest.getTone()!=null && emailRequest.getTone().isEmpty()) {
-            prompt.append("Use a ").append(emailRequest.getTone()).append(" tone.");
+            prompt.append("Use a ").append(emailRequest.getTone()).append(" the tone of the conversation (response)\n.");
         }
         prompt.append("\nOriginal email: \n").append(emailRequest.getEmailContent());
         return prompt.toString();
