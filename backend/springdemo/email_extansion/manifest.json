@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Email Writer Assistant",
+    "name": "Почтовый Асистент",
     "version":"1.0",
-    "description":"AI-Powered Email Writer Assistant",
+    "description":"Ваш помошник ответа в почте ИИ",
     "permissions": [
         "activeTab",
         "storage"
@@ -15,8 +15,14 @@
             "run_at":"document_end"
         }
     ],
+    "web_accessible_resources": [
+    {
+      "resources": [ "icons/*" ],
+      "matches": [ "*://mail.google.com/*" ]
+    }
+    ],
     "action":{
-        "default_title":"Email Writer Assistant",
+        "default_title":"Почтовый Асистент",
         "default_icon": "mail.png"
     }
 }
