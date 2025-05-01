@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { Box, Button, CircularProgress, Container, FormControl, Input, InputLabel, Menu, MenuItem, Select, TextField, Typography } from '@mui/material';
+import axios from 'axios';
 
 function App() {
   const [emailContent,setEmailContent] = useState('');
@@ -10,7 +11,21 @@ function App() {
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    
+    setLoading(true);
+    setError('');
+    try {
+      const response = await axios.post("http://localhost:8080/api/email/generate", {
+        emailContent,
+        tone
+      });
+      setGenerateReply(typeof response.data === 'string' ? response.data : JSON.stringify(response.data)); //строка или json ответ
+    } catch (error) {
+      setError('Ошибка в генерации ответа');
+      console.error(error);
+    }
+    finally{
+      setLoading(false);
+    }
   }
 
   return (
@@ -30,7 +45,7 @@ function App() {
         onChange={(e)=> setEmailContent(e.target.value)}
         sx={{mb:2}}/>
         <FormControl fullWidth sx={{mb:2}}>
-          <InputLabel>Tone (Optional)</InputLabel>
+          <InputLabel>Тон ответа</InputLabel>
           <Select
             value={tone || ''}
             label={"Tone (Optional)"}
@@ -49,6 +64,33 @@ function App() {
           {loading ? <CircularProgress size={24}/>: "Сгенерировать ответ"}
         </Button>
       </Box>
+      {error &&(
+        <Typography color='error' sx={{mb:2}}>
+          {error}
+        </Typography>
+      )}
+
+      {generateReply && (
+        <Box sx={{mt:3}}>
+          <Typography variant='h6' gutterBottom> 
+            Сгенерированный ответ:
+          </Typography>
+          <TextField 
+          fullWidth
+          multiline
+          rows={6}
+          variant='outlined'
+          value={generateReply || ''}
+          inputProps={{readOnly: true}}/>
+
+      <Button
+      variant='outlined'
+      sx={{mt:2}}
+      onClick={()=> navigator.clipboard.writeText(generateReply)}>
+        Скопировать
+      </Button>
+        </Box>
+      )}
     </Container>
   )
 }
