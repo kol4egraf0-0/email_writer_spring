@@ -77,8 +77,19 @@ function injectButton(){
             if(!response.ok){
                 throw new Error('API Запрос провален!');
             }
+
+            const generateReply = await response.text();
+            const composeBox = document.querySelector('[role=textbox][g_editable="true"]');
+            if(composeBox){
+                composeBox.focus();
+                document.execCommand('insertText', false, generateReply); //ввод текста сгенерированного
+            }
+            else {
+                console.error('composeBox не найден');
+            }
         } catch (error) {
-            
+            console.error(error);
+            alert('ошибка генерации ответа')
         }
     });
 
