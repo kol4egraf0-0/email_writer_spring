@@ -4,7 +4,7 @@ function createAIButton() {
     button.style.marginRight = '8px';
     button.innerHTML = 'AI Reply';
     button.setAttribute('role', 'button');
-    button.setAttribute('data-tooltip', 'Сгенерировать ИИ Ответ');
+    button.setAttribute('data-tooltip', 'AI Reply');
     return button;
 }
 
@@ -16,12 +16,14 @@ function getEmailContent() { //для отправки запроса берем
         '[role=presentation]'
     ]
     for(const selector of selectors){
+        console.log('Найден контент письма с селектором:', selector);
         const content = document.querySelector(selector);
         if(content)
         {
             return content.innerText.trim(); //берем текст
         }
     }
+    console.error('Контент письма не найден! Проверенные селекторы:', selectors);
     return null;
 }
 
@@ -57,7 +59,7 @@ function injectButton(){
     const button = createAIButton();
     button.classList.add('ai-reply-button');
 
-    button.addEventListener('Click', async ()=>{
+    button.addEventListener('click', async ()=>{
         try {
             button.innerHTML='Generating';
             button.disabled = 'true';
